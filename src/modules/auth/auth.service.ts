@@ -95,4 +95,18 @@ export class AuthService {
             }),
         };
     }
+
+    async validateToken(id: string) {
+        const user = await this.prismaService.user.findUnique({
+            where: {
+                id,
+            },
+        });
+
+        if (!user) throw new NotFoundException('User Not Found');
+
+        delete user.password;
+
+        return user;
+    }
 }
