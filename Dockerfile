@@ -2,9 +2,11 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY . .
+COPY package*.json ./
 
 RUN yarn
+
+COPY . .
 
 RUN yarn build
 
