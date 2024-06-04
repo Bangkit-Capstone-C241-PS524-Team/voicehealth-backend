@@ -12,7 +12,7 @@ RUN yarn build
 
 ENV PORT=8080
 
-CMD [ "yarn", "start:prod" ]
+CMD [ "yarn", "db:generate", "&&", "yarn", "start:prod" ]
 
 # Optional environment variable handling for clarity
 ENV MYSQL_DATABASE=testing \
