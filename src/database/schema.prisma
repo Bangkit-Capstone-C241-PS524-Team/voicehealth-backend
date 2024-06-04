@@ -26,7 +26,11 @@ model User {
   id          String @id @default(uuid())
   name        String @db.VarChar(100)
   username    String @unique @db.VarChar(100)
-  
+  email       String @unique @db.VarChar(100)
+  password    String @db.VarChar(100)
+  no_telp     String @unique @db.VarChar(15)
+  is_verified Int    @default(0) @db.TinyInt
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
