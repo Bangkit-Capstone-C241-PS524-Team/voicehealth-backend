@@ -2,13 +2,15 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY . .
+COPY package*.json ./
 
 RUN yarn
 
+COPY . .
+
 RUN yarn build
 
-EXPOSE $PORT
+ENV PORT=8080
 
 CMD [ "yarn", "start:prod" ]
 
