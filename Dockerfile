@@ -8,7 +8,7 @@ RUN yarn
 
 RUN yarn build
 
-EXPOSE $PORT
+ENV PORT=8080
 
 CMD [ "yarn", "start:prod" ]
 
