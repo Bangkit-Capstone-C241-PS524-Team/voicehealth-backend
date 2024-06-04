@@ -28,6 +28,6 @@ async function bootstrap() {
 
     SwaggerModule.setup('api', app, document, option);
 
-    await app.listen(process.env.BACKEND_PORT);
+    await app.listen(process.env.BACKEND_PORT || 8080);
 }
 bootstrap();
