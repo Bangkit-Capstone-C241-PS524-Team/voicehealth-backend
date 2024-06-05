@@ -7,6 +7,7 @@ import { ResponseInterceptor } from '@/common/interceptors/response.interceptor'
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import * as path from 'path';
+import { HistoryModule } from '@/modules/history/history.module';
 
 @Module({
     imports: [
@@ -30,6 +31,7 @@ import * as path from 'path';
             },
         }),
         AuthModule,
+        HistoryModule,
     ],
     controllers: [AppController],
     providers: [
