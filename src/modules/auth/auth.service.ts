@@ -138,7 +138,7 @@ export class AuthService {
 
         this.mailService.sendEmail(email, 'Verify Account', url);
     }
-
+  
     async findOne(id: string) {
         const user = await this.prismaService.user.findUnique({
             where: {
