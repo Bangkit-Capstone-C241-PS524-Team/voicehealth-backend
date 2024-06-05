@@ -61,6 +61,8 @@ export class AuthService {
             },
         });
 
+        delete res.password;
+
         this.sendEmailVerification(res.id, res.email);
 
         return res;
@@ -135,5 +137,35 @@ export class AuthService {
         const url = `${process.env.FRONTEND_URL}/verification?token=${token}`;
 
         this.mailService.sendEmail(email, 'Verify Account', url);
+    }
+  
+    async findOne(id: string) {
+        const user = await this.prismaService.user.findUnique({
+            where: {
+                id,
+            },
+        });
+
+        if (!user) throw new NotFoundException('User Not Found');
+
+        delete user.password;
+
+        return user;
+    }
+
+    async verifyUser(token: string) {
+        const { userId } = this.jwtService.verify(token);
+
+        await this.findOne(userId);
+
+        return await this.prismaService.user.update({
+            where: {
+                id: userId,
+            },
+
+            data: {
+                is_verified: 1,
+            },
+        });
     }
 }

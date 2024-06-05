@@ -4,6 +4,7 @@ import {
     Get,
     HttpCode,
     Post,
+    Query,
     UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -52,6 +53,16 @@ export class AuthController {
     async sendVerification(@Body() resendVerification: ResendVerificationDtos) {
         const user =
             await this.authService.resendVerification(resendVerification);
+        return {
+            email: user.email,
+        };
+    }
+
+    @Get('verification')
+    @HttpCode(200)
+    @ResponseMessage('User successfully verified')
+    async verifyUser(@Query('token') token: string) {
+        const user = await this.authService.verifyUser(token);
         return {
             email: user.email,
         };
