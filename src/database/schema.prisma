@@ -31,6 +31,19 @@ model User {
   no_telp     String @unique @db.VarChar(15)
   is_verified Int    @default(0) @db.TinyInt
 
+  history History[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model History {
+  id      String @id @default(uuid())
+  name    String @db.VarChar(100)
+  user_id String
+
+  user User @relation(fields: [user_id], references: [id])
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
