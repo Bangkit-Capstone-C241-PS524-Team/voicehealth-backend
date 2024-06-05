@@ -134,7 +134,7 @@ export class AuthService {
     async sendEmailVerification(user_id: string, email: string) {
         const token = this.jwtService.sign({ userId: user_id });
 
-        const url = `${process.env.FRONTEND_URL}/verification?token=${token}`;
+        const url = `${process.env.BACKEND_URL}/verification?token=${token}`;
 
         this.mailService.sendEmail(email, 'Verify Account', url);
     }
