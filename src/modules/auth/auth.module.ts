@@ -3,25 +3,21 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
 import { JwtStrategy } from '@/common/guards/jwt';
-// import { MailingService } from '@/providers/mail/mail.service';
 import { PrismaService } from '@/providers/prisma';
 
-// import { UserModule } from '../user/user.module';
-// import { UserService } from '../user/user.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { MailService } from '@/providers/mail/mail.service';
 
 @Module({
     controllers: [AuthController],
     providers: [
         AuthService,
         PrismaService,
-        // MailingService,
-        // UserService,
+        MailService,
         JwtStrategy,
     ],
     imports: [
-        // UserModule,
         PassportModule,
         JwtModule.register({
             secret: process.env.JWT_SECRET,
