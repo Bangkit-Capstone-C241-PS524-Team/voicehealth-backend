@@ -1,0 +1,7 @@
+runtime: nodejs22
+
+automatic_scaling:
+  min_instances: 1
+  max_instances: 2
+
+entrypoint: yarn start:prod
