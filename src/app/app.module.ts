@@ -8,6 +8,8 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import * as path from 'path';
 import { HistoryModule } from '@/modules/history/history.module';
+import { HttpModule } from '@nestjs/axios';
+import { DrugModule } from '@/modules/drug/drug.module';
 
 @Module({
     imports: [
@@ -32,6 +34,8 @@ import { HistoryModule } from '@/modules/history/history.module';
         }),
         AuthModule,
         HistoryModule,
+        DrugModule,
+        HttpModule,
     ],
     controllers: [AppController],
     providers: [
