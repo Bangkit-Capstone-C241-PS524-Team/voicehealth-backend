@@ -9,7 +9,6 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import * as path from 'path';
 import { HistoryModule } from '@/modules/history/history.module';
 import { HttpModule } from '@nestjs/axios';
-import { ModelModule } from '@/modules/model/model.module';
 import { DrugModule } from '@/modules/drug/drug.module';
 
 @Module({
