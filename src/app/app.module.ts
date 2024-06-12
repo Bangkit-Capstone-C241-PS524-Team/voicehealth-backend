@@ -10,6 +10,7 @@ import * as path from 'path';
 import { HistoryModule } from '@/modules/history/history.module';
 import { HttpModule } from '@nestjs/axios';
 import { DrugModule } from '@/modules/drug/drug.module';
+import { NewsModule } from '@/modules/news/news.module';
 
 @Module({
     imports: [
@@ -35,6 +36,7 @@ import { DrugModule } from '@/modules/drug/drug.module';
         AuthModule,
         HistoryModule,
         DrugModule,
+        NewsModule,
         HttpModule,
     ],
     controllers: [AppController],
