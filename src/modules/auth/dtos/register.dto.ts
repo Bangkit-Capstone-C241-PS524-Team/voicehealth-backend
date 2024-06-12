@@ -23,12 +23,12 @@ export class RegisterDto {
     @IsNotEmpty()
     name: string;
 
-    @ApiProperty({
-        example: '+62812123123',
-    })
-    @IsPhoneNumber()
-    @IsNotEmpty()
-    no_telp: string;
+    // @ApiProperty({
+    //     example: '+62812123123',
+    // })
+    // @IsPhoneNumber()
+    // @IsNotEmpty()
+    // no_telp: string;
 
     @ApiProperty({
         example: 'newuser@gmail.com',

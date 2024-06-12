@@ -16,7 +16,7 @@ export class AuthService {
     ) {}
 
     async register(registerDto: RegisterDto) {
-        const { username, name, email, password, no_telp } = registerDto;
+        const { username, name, email, password } = registerDto;
 
         const isUsernameExist = await this.prismaService.user.findUnique({
             where: {
@@ -38,15 +38,15 @@ export class AuthService {
             throw new NotFoundException('Email already exists');
         }
 
-        const isNoTelp = await this.prismaService.user.findUnique({
-            where: {
-                no_telp: no_telp,
-            },
-        });
+        // const isNoTelp = await this.prismaService.user.findUnique({
+        //     where: {
+        //         no_telp: no_telp,
+        //     },
+        // });
 
-        if (isNoTelp) {
-            throw new NotFoundException('No Telp already exists');
-        }
+        // if (isNoTelp) {
+        //     throw new NotFoundException('No Telp already exists');
+        // }
 
         const hashedPassword = await hashPassword(password);
 
@@ -56,7 +56,6 @@ export class AuthService {
                 name,
                 email,
                 password: hashedPassword,
-                no_telp,
                 is_verified: 0,
             },
         });
