@@ -1,0 +1,22 @@
+runtime: nodejs22
+
+env_variables:
+  NODE_ENV: 'production'
+  JWT_SECRET: 'secretKey'
+  JWT_EXPIRES_IN: '1h'
+  MAIL_HOST: 'smtp.gmail.com'
+  MAIL_PORT: 465
+  MAILER_SECURE: true
+  MAIL_USER: 'wisnuyeahfaizal@gmail.com'
+  MAIL_PASS: 'zponbdpdimklfmgw'
+  MAIL_FROM: 'wisnuyeahfaizal@gmail.com'
+  MYSQL_DATABASE: 'testing'
+  MYSQL_USER: 'root'
+  MYSQL_PASSWORD: 'root'
+  MYSQL_HOST: '34.101.198.21'
+  MYSQL_PORT: 3306
+  DATABASE_URL: 'mysql://root:root@34.101.198.21:3306/testing'
+
+automatic_scaling:
+  min_instances: 1
+  max_instances: 2
