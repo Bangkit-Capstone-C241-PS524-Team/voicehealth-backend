@@ -220,4 +220,3 @@ https://primeval-gear-426113-v6.et.r.appspot.com/api
 **Response:**
 - **200 OK:** List of news articles.
 - **500 Internal Server Error:** Server error or news service unavailable.
-```
