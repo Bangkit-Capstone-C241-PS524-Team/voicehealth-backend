@@ -5,7 +5,7 @@ import { lastValueFrom } from 'rxjs';
 @Injectable()
 export class NewsService {
     private readonly apiKey = '3e3720c459ba464aae89142a5d5b8ff6';  // API Key
-    private readonly apiUrl = 'https://newsapi.org/v2/top-headlines?country=id&category=health';
+    private readonly apiUrl = 'https://newsapi.org/v2/top-headlines?category=health&language=en';
     private readonly logger = new Logger(NewsService.name);
 
     constructor(private readonly httpService: HttpService) {}
@@ -17,10 +17,7 @@ export class NewsService {
                 this.httpService.get(`${this.apiUrl}&apiKey=${this.apiKey}`)
             );
             this.logger.log('News fetched successfully');
-            
-            const imageUrls = response.data.articles.map(article => article.urlToImage);
-
-            return { imageUrls };
+            return response.data;
         } catch (error) {
             this.logger.error('Error fetching news', error);
             throw error;
