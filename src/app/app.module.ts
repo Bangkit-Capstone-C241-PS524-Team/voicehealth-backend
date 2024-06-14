@@ -10,6 +10,7 @@ import * as path from 'path';
 import { HistoryModule } from '@/modules/history/history.module';
 import { HttpModule } from '@nestjs/axios';
 import { DrugModule } from '@/modules/drug/drug.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
     imports: [
@@ -31,6 +32,11 @@ import { DrugModule } from '@/modules/drug/drug.module';
                     strict: true,
                 },
             },
+        }),
+        ServeStaticModule.forRoot({
+            rootPath: path.join(__dirname, '..', 'public'),
+            serveRoot: '/public',
+            exclude: ['/api*'],
         }),
         AuthModule,
         HistoryModule,

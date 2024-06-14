@@ -5,6 +5,7 @@ import {
     HttpCode,
     Post,
     Query,
+    Req,
     UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -15,6 +16,7 @@ import { Token } from '@/common/decorators/token.decorators';
 import { JwtAuthGuard } from '@/common/guards/jwt';
 import { ResponseMessage } from '@/common/decorators/response.decorator';
 import { ResendVerificationDtos } from './dtos/accountMutation.dto';
+import { GoogleDtos } from './dtos/google.dto';
 
 @Controller('auth')
 @ApiTags('Authentication')
@@ -66,5 +68,10 @@ export class AuthController {
         return {
             email: user.email,
         };
+    }
+
+    @Post('google')
+    async googleAuthRedirect(@Body() googleDtos: GoogleDtos) {
+        return this.authService.googleLogin(googleDtos);
     }
 }

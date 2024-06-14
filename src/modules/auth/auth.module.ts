@@ -8,6 +8,7 @@ import { PrismaService } from '@/providers/prisma';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { MailService } from '@/providers/mail/mail.service';
+import { GoogleStrategy } from '@/common/guards/google';
 
 @Module({
     controllers: [AuthController],
@@ -16,6 +17,7 @@ import { MailService } from '@/providers/mail/mail.service';
         PrismaService,
         MailService,
         JwtStrategy,
+        GoogleStrategy,
     ],
     imports: [
         PassportModule,
