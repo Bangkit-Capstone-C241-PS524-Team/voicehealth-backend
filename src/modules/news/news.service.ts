@@ -17,7 +17,10 @@ export class NewsService {
                 this.httpService.get(`${this.apiUrl}&apiKey=${this.apiKey}`)
             );
             this.logger.log('News fetched successfully');
-            return response.data;
+            
+            const imageUrls = response.data.articles.map(article => article.urlToImage);
+
+            return { imageUrls };
         } catch (error) {
             this.logger.error('Error fetching news', error);
             throw error;
