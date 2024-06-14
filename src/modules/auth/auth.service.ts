@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+    Injectable,
+    NotFoundException,
+    UnauthorizedException,
+} from '@nestjs/common';
 import { comparePassword, hashPassword } from 'src/common/helpers/hash.helper';
 import { PrismaService } from 'src/providers/prisma';
 import { RegisterDto } from './dtos/register.dto';
@@ -6,14 +10,22 @@ import { LoginDto } from './dtos/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { MailService } from '@/providers/mail/mail.service';
 import { ResendVerificationDtos } from './dtos/accountMutation.dto';
+import { OAuth2Client } from 'google-auth-library';
+import { GoogleDtos } from './dtos/google.dto';
 
 @Injectable()
 export class AuthService {
+    private oauthClient: OAuth2Client;
     constructor(
         private readonly prismaService: PrismaService,
         private jwtService: JwtService,
         private mailService: MailService,
-    ) {}
+    ) {
+        this.oauthClient = new OAuth2Client(
+            process.env.GOOGLE_CLIENT_ID,
+            process.env.GOOGLE_CLIENT_SECRET,
+        );
+    }
 
     async register(registerDto: RegisterDto) {
         const { username, name, email, password } = registerDto;
@@ -137,7 +149,7 @@ export class AuthService {
 
         this.mailService.sendEmail(email, 'Verify Account', url);
     }
-  
+
     async findOne(id: string) {
         const user = await this.prismaService.user.findUnique({
             where: {
@@ -166,5 +178,47 @@ export class AuthService {
                 is_verified: 1,
             },
         });
+    }
+
+    async googleLogin(googleDtos: GoogleDtos) {
+        const { idToken } = googleDtos;
+
+        const ticket = await this.oauthClient.verifyIdToken({
+            idToken,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+        if (!payload) {
+            throw new UnauthorizedException('Invalid Google token');
+        }
+
+        const { email, given_name: firstName, family_name: lastName } = payload;
+
+        let user = await this.prismaService.user.findUnique({
+            where: { email },
+        });
+
+        if (!user) {
+            user = await this.prismaService.user.create({
+                data: {
+                    email,
+                    username: lastName,
+                    name: `${firstName} ${lastName}`,
+                    password: '',
+                    is_verified: 1,
+                },
+            });
+        }
+
+        const access_token = this.jwtService.sign({
+            username: user.username,
+            id: user.id,
+        });
+
+        return {
+            user,
+            access_token,
+        };
     }
 }

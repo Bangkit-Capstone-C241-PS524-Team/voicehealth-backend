@@ -1,0 +1,9 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.aloysius.voicehealthguide",
+    "sha256_cert_fingerprints":
+    ["71:6A:0F:3D:4D:BC:3D:4F:38:EF:D6:98:82:98:A9:5E:4F:07:E8:DD:6C:9C:58:75:2A:B5:5F:CF:7C:7E:45:3C"]
+  }
+}]
