@@ -71,3 +71,153 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](LICENSE).
+
+
+
+# API Documentation
+
+This API provides endpoints for user authentication, history management, and news retrieval. Below are the details of each endpoint available.
+
+## Base URL
+```
+https://primeval-gear-426113-v6.et.r.appspot.com/api
+```
+
+## Authentication
+
+### Register a New User
+
+**Endpoint:** `POST /api/auth/register`
+
+**Description:** Register a new user.
+
+**Request Body:**
+```json
+{
+    "username": "string",
+    "password": "string",
+    "email": "string"
+}
+```
+
+**Response:**
+- **201 Created:** User successfully registered.
+- **400 Bad Request:** Validation error or user already exists.
+
+### Login
+
+**Endpoint:** `POST /api/auth/login`
+
+**Description:** Authenticate a user.
+
+**Request Body:**
+```json
+{
+    "username": "string",
+    "password": "string"
+}
+```
+
+**Response:**
+- **200 OK:** Successful login with a token.
+- **401 Unauthorized:** Incorrect username or password.
+
+### Send Verification Email
+
+**Endpoint:** `POST /api/auth/send-verification`
+
+**Description:** Send a verification email to the user.
+
+**Request Body:**
+```json
+{
+    "email": "string"
+}
+```
+
+**Response:**
+- **200 OK:** Verification email sent.
+- **400 Bad Request:** Validation error or email not found.
+
+### Verify Email
+
+**Endpoint:** `GET /api/auth/verification`
+
+**Description:** Verify a user's email.
+
+**Request Parameters:**
+- **token** (required): The verification token received in the email.
+
+**Response:**
+- **200 OK:** Email successfully verified.
+- **400 Bad Request:** Invalid or expired token.
+
+## History
+
+### Get User History
+
+**Endpoint:** `GET /api/history`
+
+**Description:** Retrieve the history of the authenticated user.
+
+**Request Headers:**
+- **Authorization:** Bearer {token}
+
+**Response:**
+- **200 OK:** List of history items.
+- **401 Unauthorized:** Invalid or missing token.
+
+### Add History Item
+
+**Endpoint:** `POST /api/history`
+
+**Description:** Add a new item to the user's history.
+
+**Request Headers:**
+- **Authorization:** Bearer {token}
+
+**Request Body:**
+```json
+{
+    "item": "string"
+}
+```
+
+**Response:**
+- **201 Created:** History item successfully added.
+- **400 Bad Request:** Validation error.
+- **401 Unauthorized:** Invalid or missing token.
+
+### Delete History Item
+
+**Endpoint:** `DELETE /api/history`
+
+**Description:** Delete an item from the user's history.
+
+**Request Headers:**
+- **Authorization:** Bearer {token}
+
+**Request Body:**
+```json
+{
+    "item_id": "string"
+}
+```
+
+**Response:**
+- **200 OK:** History item successfully deleted.
+- **400 Bad Request:** Validation error.
+- **401 Unauthorized:** Invalid or missing token.
+
+## News
+
+### Get News
+
+**Endpoint:** `GET /api/news`
+
+**Description:** Retrieve the latest news.
+
+**Response:**
+- **200 OK:** List of news articles.
+- **500 Internal Server Error:** Server error or news service unavailable.
+```
