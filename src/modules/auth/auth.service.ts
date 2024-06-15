@@ -12,6 +12,7 @@ import { MailService } from '@/providers/mail/mail.service';
 import { ResendVerificationDtos } from './dtos/accountMutation.dto';
 import { OAuth2Client } from 'google-auth-library';
 import { GoogleDtos } from './dtos/google.dto';
+import { ResetPasswordDto } from './dtos/resetPassword.dto';
 
 @Injectable()
 export class AuthService {
@@ -177,6 +178,47 @@ export class AuthService {
             data: {
                 is_verified: 1,
             },
+        });
+    }
+
+    async resetPasswordRequest(
+        resetPasswordRequestDto: ResendVerificationDtos,
+    ) {
+        const user = await this.prismaService.user.findUnique({
+            where: {
+                email: resetPasswordRequestDto.email,
+            },
+        });
+
+        if (!user) throw new NotFoundException('User didnt exists');
+
+        const token = this.jwtService.sign({ userId: user.id });
+
+        const url = `${process.env.BACKEND_URL}/reset-password?token=${token}`;
+
+        this.mailService.sendEmail(
+            resetPasswordRequestDto.email,
+            'Reset Password',
+            url,
+        );
+
+        return {
+            email: user.email,
+        };
+    }
+
+    async resetPassword(resetPasswordDto: ResetPasswordDto, token: string) {
+        const { userId } = this.jwtService.verify(token);
+
+        await this.findOne(userId);
+
+        if (!userId) throw new NotFoundException('User didnt exists');
+
+        const hashedPassword = await hashPassword(resetPasswordDto.password);
+
+        return await this.prismaService.user.update({
+            where: { id: userId },
+            data: { password: hashedPassword },
         });
     }
 
