@@ -3,6 +3,7 @@ import {
     Controller,
     Get,
     HttpCode,
+    Patch,
     Post,
     Query,
     Req,
@@ -17,6 +18,7 @@ import { JwtAuthGuard } from '@/common/guards/jwt';
 import { ResponseMessage } from '@/common/decorators/response.decorator';
 import { ResendVerificationDtos } from './dtos/accountMutation.dto';
 import { GoogleDtos } from './dtos/google.dto';
+import { ResetPasswordDto } from './dtos/resetPassword.dto';
 
 @Controller('auth')
 @ApiTags('Authentication')
@@ -68,6 +70,37 @@ export class AuthController {
         return {
             email: user.email,
         };
+    }
+
+    @Post('reset-password-request')
+    @ResponseMessage('Email successfully sent')
+    async resetPasswordRequest(
+        @Body() resetPasswordRequest: ResendVerificationDtos,
+    ) {
+        const sendEmail =
+            await this.authService.resetPasswordRequest(resetPasswordRequest);
+        return sendEmail;
+    }
+
+    @Get('reset-password')
+    @HttpCode(200)
+    @ResponseMessage('Success get reset password token')
+    async getResetPassword(@Query('token') token: string) {
+        return token;
+    }
+
+    @Patch('reset-password')
+    @HttpCode(200)
+    @ResponseMessage('Success update password')
+    async resetPassword(
+        @Body() resetPasswordDto: ResetPasswordDto,
+        @Query('token') token: string,
+    ) {
+        const reset = await this.authService.resetPassword(
+            resetPasswordDto,
+            token,
+        );
+        return reset;
     }
 
     @Post('google')
