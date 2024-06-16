@@ -19,7 +19,7 @@ export class DrugService {
                 )
                     return null;
 
-                const detailUrl = `https://voicehealth-backend-lnk4vu7nua-et.a.run.app/api/drug/detail?slug=${response.data.result[0].slug}`;
+                const detailUrl = `https://magneto.api.halodoc.com/api/v1/buy-medicine/products/detail/${response.data.result[0].slug}`;
                 const detailResponse = await lastValueFrom(
                     this.httpService.get(detailUrl),
                 );
