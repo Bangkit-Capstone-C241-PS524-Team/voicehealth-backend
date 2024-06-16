@@ -86,7 +86,8 @@ export class AuthController {
     @HttpCode(200)
     @ResponseMessage('Success get reset password token')
     async getResetPassword(@Query('token') token: string) {
-        return token;
+        const res = await this.authService.verifyToken(token);
+        return res;
     }
 
     @Patch('reset-password')

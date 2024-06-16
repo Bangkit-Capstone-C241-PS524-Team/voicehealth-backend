@@ -207,6 +207,17 @@ export class AuthService {
         };
     }
 
+    async verifyToken(token: string) {
+        const { userId } = this.jwtService.verify(token);
+
+        if (!userId) throw new NotFoundException('Token invalid');
+
+        return {
+            token,
+            userId,
+        };
+    }
+
     async resetPassword(resetPasswordDto: ResetPasswordDto, token: string) {
         const { userId } = this.jwtService.verify(token);
 
