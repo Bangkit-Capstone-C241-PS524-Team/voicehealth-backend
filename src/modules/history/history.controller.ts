@@ -13,7 +13,6 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { historyService } from './history.service';
 import { Token } from '@/common/decorators/token.decorators';
 import { JwtAuthGuard } from '@/common/guards/jwt';
-import { CreateHistoryDto } from './dtos/createHistory.dto';
 
 @Controller('history')
 @ApiTags('History')
@@ -30,29 +29,16 @@ export class HistoryController {
         return res;
     }
 
-    @Post()
+    @Delete(':historyId')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @HttpCode(201)
-    @ResponseMessage('Success create history')
-    async create(
-        @Token('id') id: string,
-        @Body() createHistoryDto: CreateHistoryDto,
+    @ResponseMessage('Success delete history')
+    async delete(
+        @Param('historyId') historyId: string,
+        @Token('id') userId: string,
     ) {
-        const res = await this.historyService.createHistory(
-            id,
-            createHistoryDto,
-        );
-        return res;
-    }
-
-    @Delete()
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth()
-    @HttpCode(201)
-    @ResponseMessage('Success create history')
-    async delete(@Param('id') id: string) {
-        const res = await this.historyService.deleteHistory(id);
+        const res = await this.historyService.deleteHistory(historyId, userId);
         return res;
     }
 }

@@ -2,6 +2,7 @@ import { PrismaService } from '@/providers/prisma';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateHistoryDto } from './dtos/createHistory.dto';
 import { AuthService } from '../auth/auth.service';
+import { DrugDetail } from '../drug/interfaces/drugs.interface';
 
 @Injectable()
 export class historyService {
@@ -20,30 +21,41 @@ export class historyService {
         return history;
     }
 
-    async createHistory(id: string, createHistoryDto: CreateHistoryDto) {
-        const user = await this.authService.findOne(id);
-
-        const history = await this.prismaService.history.create({
+    async createHistoryEntry(
+        userId: string,
+        keluhan: string,
+        category: string,
+        drugs: DrugDetail[],
+    ) {
+        return this.prismaService.history.create({
             data: {
-                ...createHistoryDto,
-                user_id: user.id,
+                user_id: userId,
+                keluhan,
+                category,
+                drugs,
             },
         });
-
-        return history;
     }
 
-    async deleteHistory(id: string) {
+    async deleteHistory(historyId: string, userId: string) {
         const history = await this.prismaService.history.findUnique({
-            where: { id },
+            where: { id: historyId },
         });
 
         if (!history) {
             throw new NotFoundException('History not found');
         }
 
+        const user = await this.prismaService.user.findUnique({
+            where: {
+                id: userId,
+            },
+        });
+
+        if (!user) throw new NotFoundException('User not found');
+
         return await this.prismaService.history.delete({
-            where: { id },
+            where: { id: historyId },
         });
     }
 }
