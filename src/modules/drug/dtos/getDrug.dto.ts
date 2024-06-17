@@ -5,7 +5,7 @@ export class GetDrugDtos {
     @IsString()
     @IsNotEmpty()
     @ApiProperty({
-        example: 'I got diarrhea',
+        example: 'I got diarrhea and potentially bloody in severe cases',
     })
     keluhan: string;
 }

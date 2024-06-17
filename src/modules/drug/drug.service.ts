@@ -1,63 +1,133 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { lastValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import { GetDrugDtos } from './dtos/getDrug.dto';
 import { DrugDetail } from './interfaces/drugs.interface';
+import { AuthService } from '../auth/auth.service';
+import { historyService } from '../history/history.service';
 
 @Injectable()
 export class DrugService {
-    constructor(private readonly httpService: HttpService) {}
+    private readonly logger = new Logger(DrugService.name);
+
+    constructor(
+        private readonly httpService: HttpService,
+        private readonly authService: AuthService,
+        private readonly historyService: historyService,
+    ) {}
 
     private async getMlPrediction(
         keluhan: string,
     ): Promise<{ category: string; drugs: string[] }> {
         const mlUrl = `${process.env.BACKENDML_URL}/predict`;
-        const mlResponse = await lastValueFrom(
-            this.httpService.post(mlUrl, { keluhan }),
+        this.logger.debug(
+            `Requesting ML prediction from ${mlUrl} with keluhan: ${keluhan}`,
         );
 
-        return mlResponse.data;
+        try {
+            const mlResponse = await lastValueFrom(
+                this.httpService.post<{ category: string; drugs: string[] }>(
+                    mlUrl,
+                    { keluhan },
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Accept: 'application/json',
+                        },
+                    },
+                ),
+            );
+            this.logger.debug(
+                `ML prediction response: ${JSON.stringify(mlResponse.data)}`,
+            );
+            return mlResponse.data;
+        } catch (error) {
+            this.logger.error(
+                `Error requesting ML prediction: ${error.message}`,
+            );
+            throw new HttpException(
+                'Failed to get prediction from ML service',
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
     }
 
     private async fetchDrugDetails(drug: string): Promise<DrugDetail | null> {
-        const url = `${process.env.HALODOCAPI_URL}/v1/buy-medicine/products/search/${drug}?page=1&per_page=1`;
-        const response = await lastValueFrom(this.httpService.get(url));
+        const encodedDrug = encodeURIComponent(drug);
+        const url = `${process.env.HALODOCAPI_URL}/v1/buy-medicine/products/search/${encodedDrug}?page=1&per_page=1`;
+        this.logger.debug(`Fetching drug details from ${url}`);
 
-        if (
-            !response ||
-            !response.data.result ||
-            response.data.result.length === 0
-        )
+        try {
+            const response = await lastValueFrom(
+                this.httpService.get<{ result: any[] }>(url),
+            );
+
+            if (
+                !response ||
+                !response.data.result ||
+                response.data.result.length === 0
+            ) {
+                return null;
+            }
+
+            const detailUrl = `${process.env.HALODOCAPI_URL}/v1/buy-medicine/products/detail/${response.data.result[0].slug}`;
+            const detailResponse = await lastValueFrom(
+                this.httpService.get<{ description: string }>(detailUrl),
+            );
+
+            return {
+                id: response.data.result[0].external_id,
+                name: response.data.result[0].name,
+                image_url: response.data.result[0].image_url,
+                description: detailResponse.data.description,
+            };
+        } catch (error) {
+            this.logger.error(
+                `Error fetching drug details for ${drug}: ${error.message}`,
+            );
             return null;
-
-        const detailUrl = `${process.env.HALODOCAPI_URL}/v1/buy-medicine/products/detail/${response.data.result[0].slug}`;
-        const detailResponse = await lastValueFrom(
-            this.httpService.get(detailUrl),
-        );
-
-        return {
-            id: response.data.result[0].external_id,
-            name: response.data.result[0].name,
-            image_url: response.data.result[0].image_url,
-            description: detailResponse.data.description,
-        };
+        }
     }
 
-    public async getDrugs(
-        body: GetDrugDtos,
-    ): Promise<{ category: string; drugs: DrugDetail[] }> {
+    public async getDrugs(body: GetDrugDtos, id: string) {
         const { keluhan } = body;
+        const user = await this.authService.findOne(id);
 
-        const mlPrediction = await this.getMlPrediction(keluhan);
+        let mlPrediction;
+        try {
+            mlPrediction = await this.getMlPrediction(keluhan);
+        } catch (error) {
+            throw new HttpException(
+                'Gagal untuk predict keluhan',
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+
         const { category, drugs } = mlPrediction;
 
         const results = await Promise.all(
             drugs.map((drug: string) => this.fetchDrugDetails(drug)),
         );
 
+        const filteredResults = results.filter(
+            (result) => result !== null,
+        ) as DrugDetail[];
+
+        await this.historyService.createHistoryEntry(
+            user.id,
+            keluhan,
+            category,
+            filteredResults,
+        );
+
+        let drugsOutput;
+        if (filteredResults.length === 0) {
+            drugsOutput = 'Gagal mendapatkan obat yang cocok';
+        } else drugsOutput = filteredResults;
+
         return {
             category,
-            drugs: results.filter((result) => result !== null) as DrugDetail[],
+            drugs: drugsOutput,
         };
     }
 }

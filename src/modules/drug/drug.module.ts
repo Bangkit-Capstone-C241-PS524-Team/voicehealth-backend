@@ -9,6 +9,7 @@ import { HttpModule } from '@nestjs/axios';
 import { MailService } from '@/providers/mail/mail.service';
 import { DrugService } from './drug.service';
 import { DrugController } from './drug.controller';
+import { historyService } from '../history/history.service';
 
 @Module({
     controllers: [DrugController],
@@ -18,6 +19,7 @@ import { DrugController } from './drug.controller';
         AuthService,
         MailService,
         DrugService,
+        historyService,
     ],
     imports: [
         PassportModule,
