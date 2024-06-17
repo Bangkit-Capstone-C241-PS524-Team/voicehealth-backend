@@ -11,9 +11,9 @@ export class DrugController {
 
     @Post()
     @HttpCode(200)
-    @ResponseMessage('Success get drugs detail')
-    async getModelResponse(@Body() drugs: GetDrugDtos) {
-        const res = await this.modelService.getDrugs(drugs);
+    @ResponseMessage('Berhasil mendapatkan obat dari keluhan')
+    async getModelResponse(@Body() body: GetDrugDtos) {
+        const res = await this.modelService.getDrugs(body);
         return res;
     }
 }
