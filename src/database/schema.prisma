@@ -38,8 +38,10 @@ model User {
 }
 
 model History {
-  id      String @id @default(uuid())
-  name    String @db.VarChar(100)
+  id       String @id @default(uuid())
+  keluhan  String @db.Text
+  category String @db.VarChar(100)
+  drugs    Json
   user_id String
 
   user User @relation(fields: [user_id], references: [id])
