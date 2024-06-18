@@ -52,41 +52,72 @@ export class DrugService {
         }
     }
 
-    private async fetchDrugDetails(drug: string): Promise<DrugDetail | null> {
+    private async fetchDrugDetailsFromHalodoc(drug: string): Promise<DrugDetail | null> {
         const encodedDrug = encodeURIComponent(drug);
-        const url = `${process.env.HALODOCAPI_URL}/v1/buy-medicine/products/search/${encodedDrug}?page=1&per_page=1`;
-        this.logger.debug(`Fetching drug details from ${url}`);
+        const halodocUrl = `${process.env.HALODOCAPI_URL}/v1/buy-medicine/products/search/${encodedDrug}?page=1&per_page=1`;
+
+        this.logger.debug(`Fetching drug details from Halodoc: ${halodocUrl}`);
 
         try {
-            const response = await lastValueFrom(
-                this.httpService.get<{ result: any[] }>(url),
-            );
+            const response = await lastValueFrom(this.httpService.get<{ result: any[] }>(halodocUrl));
+            this.logger.debug(`Halodoc response: ${JSON.stringify(response.data)}`);
 
-            if (
-                !response ||
-                !response.data.result ||
-                response.data.result.length === 0
-            ) {
+            if (response.data.result && response.data.result.length > 0) {
+                const detailUrl = `${process.env.HALODOCAPI_URL}/v1/buy-medicine/products/detail/${response.data.result[0].slug}`;
+                this.logger.debug(`Fetching detailed drug info from Halodoc: ${detailUrl}`);
+
+                const detailResponse = await lastValueFrom(
+                    this.httpService.get<{ description: string }>(detailUrl),
+                );
+
+                return {
+                    id: response.data.result[0].external_id,
+                    name: response.data.result[0].name,
+                    image_url: response.data.result[0].image_url,
+                    description: detailResponse.data.description,
+                };
+            } else {
+                this.logger.warn(`No results found for ${drug} on Halodoc`);
                 return null;
             }
-
-            const detailUrl = `${process.env.HALODOCAPI_URL}/v1/buy-medicine/products/detail/${response.data.result[0].slug}`;
-            const detailResponse = await lastValueFrom(
-                this.httpService.get<{ description: string }>(detailUrl),
-            );
-
-            return {
-                id: response.data.result[0].external_id,
-                name: response.data.result[0].name,
-                image_url: response.data.result[0].image_url,
-                description: detailResponse.data.description,
-            };
         } catch (error) {
-            this.logger.error(
-                `Error fetching drug details for ${drug}: ${error.message}`,
-            );
+            this.logger.error(`Error fetching drug details from Halodoc for ${drug}: ${error.message}`);
             return null;
         }
+    }
+
+    private async fetchDrugDetailsFromAlodokter(drug: string): Promise<DrugDetail | null> {
+        const encodedDrug = encodeURIComponent(drug);
+        const alodokterUrl = `https://www.alodokter.com/api/aloshop/products?term=${encodedDrug}`;
+
+        this.logger.debug(`Fetching drug details from Alodokter: ${alodokterUrl}`);
+
+        try {
+            const response = await lastValueFrom(this.httpService.get<{ result: { data: any[] } }>(alodokterUrl));
+            this.logger.debug(`Alodokter response: ${JSON.stringify(response.data)}`);
+
+            if (response.data.result && response.data.result.data && response.data.result.data.length > 0) {
+                const product = response.data.result.data[0];
+                return {
+                    id: product.id,
+                    name: product.name,
+                    image_url: product.thumbnail_image || '',
+                    description: product.generic?.name || '',
+                };
+            } else {
+                this.logger.warn(`No results found for ${drug} on Alodokter`);
+                return null;
+            }
+        } catch (error) {
+            this.logger.error(`Error fetching drug details from Alodokter for ${drug}: ${error.message}`);
+            return null;
+        }
+    }
+
+    private async fetchDrugDetails(drug: string): Promise<DrugDetail[]> {
+        const halodocDetail = await this.fetchDrugDetailsFromHalodoc(drug);
+        const alodokterDetail = await this.fetchDrugDetailsFromAlodokter(drug);
+        return [halodocDetail, alodokterDetail].filter(detail => detail !== null) as DrugDetail[];
     }
 
     public async getDrugs(body: GetDrugDtos, id: string) {
@@ -109,7 +140,7 @@ export class DrugService {
             drugs.map((drug: string) => this.fetchDrugDetails(drug)),
         );
 
-        const filteredResults = results.filter(
+        const filteredResults = results.flat().filter(
             (result) => result !== null,
         ) as DrugDetail[];
 
