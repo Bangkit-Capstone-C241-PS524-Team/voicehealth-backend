@@ -8,6 +8,9 @@ RUN yarn install
 
 COPY . .
 
+RUN yarn db:migrate
+RUN yarn db:generate
+
 RUN yarn build
 
 ENV PORT=8080
