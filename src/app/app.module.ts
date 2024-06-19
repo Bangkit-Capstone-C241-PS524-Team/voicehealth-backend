@@ -10,6 +10,7 @@ import * as path from 'path';
 import { HistoryModule } from '@/modules/history/history.module';
 import { HttpModule } from '@nestjs/axios';
 import { DrugModule } from '@/modules/drug/drug.module';
+import { NewsModule } from '@/modules/news/news.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
@@ -41,6 +42,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
         AuthModule,
         HistoryModule,
         DrugModule,
+        NewsModule,
         HttpModule,
     ],
     controllers: [AppController],
