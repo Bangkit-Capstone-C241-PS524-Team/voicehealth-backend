@@ -1,0 +1,9 @@
+[
+    {
+        "username": "user_name",
+        "name": "name name",
+        "email": "newuser@gmail.com",
+        "password": "password",
+        "is_verified": 1    
+    }
+]

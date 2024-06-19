@@ -22,7 +22,7 @@
     "db:generate": "npx prisma generate",
     "db:push": "npx prisma db push",
     "db:seed": "ts-node --transpile-only ./src/database/seeders/seed.ts",
-    "db:migrate": "npx prisma migrate"
+    "db:migrate": "npx prisma migrate dev"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",
