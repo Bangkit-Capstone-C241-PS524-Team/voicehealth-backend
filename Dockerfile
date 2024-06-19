@@ -8,6 +8,8 @@ RUN yarn install
 
 COPY . .
 
+ENV DATABASE_URL="mysql://root:root@34.101.198.21:3306/testing"
+
 RUN yarn db:migrate
 RUN yarn db:generate
 
