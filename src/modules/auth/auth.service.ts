@@ -103,11 +103,14 @@ export class AuthService {
             throw new NotFoundException('Email tidak terverifikasi');
         }
 
+        delete user.password;
+
         return {
             access_token: this.jwtService.sign({
                 username: user.username,
                 id: user.id,
             }),
+            user,
         };
     }
 
